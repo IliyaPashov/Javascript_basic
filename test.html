@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="bg">
+  <head>
+    <meta charset="utf-8" />
+    <title>Камък Ножица Хартия</title>
+    <style>
+      body {
+        font-family: system-ui, -apple-system, "Segoe UI", Roboto,
+          "Helvetica Neue", Arial;
+        padding: 24px;
+      }
+      h1 {
+        margin-bottom: 8px;
+      }
+      .buttons {
+        margin: 12px 0;
+        display: flex;
+        gap: 8px;
+      }
+      button {
+        padding: 10px 16px;
+        border-radius: 8px;
+        border: 1px solid #ccc;
+        cursor: pointer;
+      }
+      #resultBox {
+        margin-top: 16px;
+        padding: 12px;
+        border-radius: 8px;
+        border: 1px dashed #aaa;
+        max-width: 480px;
+      }
+      .score {
+        margin-top: 12px;
+        font-weight: 600;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Камък — Ножица — Хартия</h1>
+    <p>Избери своя ход:</p>
+
+    <div class="buttons">
+      <button data-move="rock">Камък</button>
+      <button data-move="paper">Хартия</button>
+      <button data-move="scissors">Ножица</button>
+    </div>
+
+    <div id="resultBox">
+      <div id="message">Нямате резултат още.</div>
+      <div class="score" id="score">Точки — Ти: 0 | Компютър: 0 | Равни: 0</div>
+    </div>
+
+    <script>
+      // Състояние на резултатите
+      const state = { player: 0, computer: 0, ties: 0 };
+
+      // Възможни ходове
+      const moves = ["rock", "paper", "scissors"];
+
+      // Помощна функция — избира рандом ход на компютъра
+      function getComputerMove() {
+        const r = Math.random();
+        if (r < 1 / 3) return "rock";
+        if (r < 2 / 3) return "paper";
+        return "scissors";
+      }
+
+      // Връща резултат: 'win' / 'lose' / 'tie'
+      function determineResult(playerMove, computerMove) {
+        if (playerMove === computerMove) return "tie";
+
+        // правила: rock > scissors, scissors > paper, paper > rock
+        if (
+          (playerMove === "rock" && computerMove === "scissors") ||
+          (playerMove === "scissors" && computerMove === "paper") ||
+          (playerMove === "paper" && computerMove === "rock")
+        ) {
+          return "win";
+        } else {
+          return "lose";
+        }
+      }
+
+      // Показване на резултата в UI
+      function showResult(playerMove, computerMove, result) {
+        const messageEl = document.getElementById("message");
+        let text;
+        if (result === "tie")
+          text = `Равенство — и двамата избрахте ${playerMove}.`;
+        else if (result === "win")
+          text = `Ти печелиш! Ти: ${playerMove}. Компютърът: ${computerMove}.`;
+        else text = `Ти губиш. Ти: ${playerMove}. Компютърът: ${computerMove}.`;
+
+        messageEl.textContent = text;
+        updateScoreboard();
+      }
+
+      function updateScoreboard() {
+        const scoreEl = document.getElementById("score");
+        scoreEl.textContent = `Точки — Ти: ${state.player} | Компютър: ${state.computer} | Равни: ${state.ties}`;
+      }
+
+      // Главна функция за игра
+      function play(playerMove) {
+        if (!moves.includes(playerMove)) return; // защитна проверка
+
+        const computerMove = getComputerMove();
+        const result = determineResult(playerMove, computerMove);
+
+        if (result === "win") state.player += 1;
+        else if (result === "lose") state.computer += 1;
+        else state.ties += 1;
+
+        showResult(playerMove, computerMove, result);
+      }
+
+      // Прикачване на евенти към бутоните
+      document.querySelectorAll("button[data-move]").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const move = btn.getAttribute("data-move");
+          play(move);
+        });
+      });
+    </script>
+  </body>
+</html>
